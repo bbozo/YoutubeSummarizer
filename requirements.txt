@@ -1,0 +1,6 @@
+youtube-transcript-api
+pytube
+langchain
+youtube-transcript-api
+openai
+tiktoken
