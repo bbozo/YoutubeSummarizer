@@ -3,18 +3,12 @@ from langchain.llms import OpenAI
 from langchain.chains.summarize import load_summarize_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import sys
+import os
 
 OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY', 'INSERT HERE')
 
 loader = YoutubeLoader.from_youtube_url(sys.argv[1], add_video_info=True)
 result = loader.load()
-
-"""
-print (type(result))
-print (f"Found video from {result[0].metadata['author']} that is {result[0].metadata['length']} seconds long")
-print ("")
-print (result)
-"""
 
 llm = OpenAI(temperature=0, openai_api_key=OPENAI_API_KEY)
 

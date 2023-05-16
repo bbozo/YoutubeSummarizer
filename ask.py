@@ -16,13 +16,11 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', 'INSERT HERE')
 PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY', 'INSERT HERE')
 PINECONE_API_ENV = os.environ.get('PINECONE_API_ENV', 'INSERT HERE')
 
-loader = YoutubeLoader.from_youtube_url(sys.argv[1], add_video_info=True)
-result = loader.load()
+arguments_as_string = ' '.join(sys.argv[1:])
+
 
 llm = OpenAI(temperature=0, openai_api_key=OPENAI_API_KEY)
 
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=0)
-texts = text_splitter.split_documents(result)
 
 embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
 
@@ -32,7 +30,15 @@ pinecone.init(
     environment=PINECONE_API_ENV  # next to api key in console
 )
 
-# -6901589.svc.asia-southeast1-gcp-free.pinecone.io
 index_name = "langchaintest" # put in the name of your pinecone index here
 
-docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name)
+docsearch = Pinecone.from_existing_index(index_name, embeddings)
+
+chain = load_qa_chain(llm, chain_type="stuff")
+
+query = arguments_as_string
+docs = docsearch.similarity_search(query)
+
+print(chain.run(input_documents=docs, question=query))
+
+
